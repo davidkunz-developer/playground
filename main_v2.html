@@ -373,7 +373,6 @@
             const bar = document.getElementById('progressBar');
             const btns = document.querySelectorAll('.action-btn');
 
-            let isRunning = true;
             container.style.display = 'block';
             header.textContent = 'MISSION INITIALIZING...';
             header.style.color = '#38bdf8';
@@ -381,58 +380,68 @@
             bar.style.width = '10%';
             btns.forEach(b => b.disabled = true);
 
-            // Polling statusu
+            // Polling statusu - Tady se teď děje veškerá magie sledování konce
             let pollInterval = setInterval(async () => {
-                if (!isRunning) return;
                 try {
                     const res = await fetch('/status', { headers: { 'X-API-Key': API_KEY } });
                     const data = await res.json();
+
                     if (data.step) {
                         if (data.step === 'DOKONČENO') {
-                            step.textContent = '✅ Všechny kroky byly úspěšně dokončeny.';
+                            clearInterval(pollInterval); // Zastavíme polling až TEĎ
+                            header.textContent = 'MISSION ACCOMPLISHED';
+                            header.style.color = '#10b981';
+                            step.textContent = '✅ Všechny operace proběhly v pořádku.';
                             bar.style.width = '100%';
+                            btns.forEach(b => b.disabled = false);
+                            setTimeout(fetchLogs, 1000);
                         } else if (data.step.startsWith('CHYBA:')) {
+                            clearInterval(pollInterval);
+                            header.textContent = 'MISSION FAILED';
+                            header.style.color = '#f43f5e';
                             step.textContent = `❌ ${data.step}`;
                             bar.style.width = '100%';
+                            btns.forEach(b => b.disabled = false);
+                            setTimeout(fetchLogs, 1000);
                         } else {
+                            // Průběžné aktualizace
                             step.textContent = `📍 AKTUÁLNĚ: ${data.step}`;
-                            // Dynamický progress bar podle obsahu textu
+                            header.textContent = 'MISSION IN PROGRESS...';
+                            header.style.color = '#38bdf8';
+
+                            // Animace progress baru
                             if (data.step.includes('prohlížeč')) bar.style.width = '20%';
-                            if (data.step.includes('Naviguji')) bar.style.width = '40%';
-                            if (data.step.includes('formulář')) bar.style.width = '70%';
+                            if (data.step.includes('Načítám') || data.step.includes('Naviguji')) bar.style.width = '40%';
+                            if (data.step.includes('formulář') || data.step.includes('údaje')) bar.style.width = '70%';
                             if (data.step.includes('Odesílám')) bar.style.width = '90%';
                         }
                     }
-                } catch (e) { }
+                } catch (e) {
+                    console.error("Polling error:", e);
+                }
             }, 800);
 
             try {
-                const res = await fetch(`/run/${notebookId}`, { method: 'POST', headers: { 'X-API-Key': API_KEY } });
-                const result = await res.json();
+                // Jen pošleme povel a dál už jen čekáme na polling
+                const res = await fetch(`/run/${notebookId}`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY }
+                });
 
-                isRunning = false; // Zastavíme sémanticky polling
-                clearInterval(pollInterval);
-
-                if (result.status === 'success') {
-                    header.textContent = 'MISSION ACCOMPLISHED';
-                    header.style.color = '#10b981';
-                    step.textContent = '✅ Běh dopadl úspěšně. Všechny operace potvrzeny.';
-                    bar.style.width = '100%';
-                } else {
-                    header.textContent = 'MISSION FAILED';
+                if (!res.ok) {
+                    const result = await res.json();
+                    clearInterval(pollInterval);
+                    header.textContent = 'START FAILED';
                     header.style.color = '#f43f5e';
-                    step.textContent = `❌ KRITICKÁ CHYBA: ${result.message}`;
-                    bar.style.width = '100%';
+                    step.textContent = `❌ Chyba při spouštění: ${result.message}`;
+                    btns.forEach(b => b.disabled = false);
                 }
             } catch (e) {
-                isRunning = false;
                 clearInterval(pollInterval);
                 header.textContent = 'UPLINK LOST';
                 header.style.color = '#f43f5e';
-                step.textContent = 'Ztraceno spojení se serverem.';
-            } finally {
+                step.textContent = 'Nelze se spojit se serverem.';
                 btns.forEach(b => b.disabled = false);
-                setTimeout(fetchLogs, 1000); // Načteme logy s mírným zpožděním
             }
         }
         fetchLogs();
