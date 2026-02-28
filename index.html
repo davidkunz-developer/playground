@@ -218,83 +218,79 @@
 
     <script>
         const logsTableBody = document.getElementById('logsTableBody');
-
-        const API_KEY = 'moje-tajne-heslo-123'; // Musí se shodovat se serverem
+        const API_KEY = 'moje-tajne-heslo-123';
 
         async function fetchLogs() {
             try {
                 const response = await fetch('/logs', {
                     headers: { 'X-API-Key': API_KEY }
                 });
-
-                if (response.status === 401) {
-                    console.error('Neautorizovaný přístup - špatný API klíč');
-                    return;
-                }
-
+                if (response.status === 401) return;
                 const logs = await response.json();
-
                 logsTableBody.innerHTML = logs.map(log => `
                     <tr>
                         <td style="font-family: monospace;">${log.datum} ${log.cas}</td>
-                        <td>
-                            <span class="status-badge status-${log.status.toLowerCase()}">
-                                ${log.status}
-                            </span>
-                        </td>
-                        <td style="color: ${log.status === 'ok' ? '#94a3b8' : '#f87171'}">
-                            ${log.error_message || 'OK'}
-                        </td>
-                        <td>
-                            ${log.screenshot ? `<a href="${log.screenshot}" target="_blank" style="color:var(--accent-color); text-decoration:none; font-weight:600;">👁️ Foto</a>` : '<span style="color:#475569">-</span>'}
-                        </td>
+                        <td><span class="status-badge status-${log.status.toLowerCase()}">${log.status}</span></td>
+                        <td style="color: ${log.status === 'ok' ? '#94a3b8' : '#f87171'}">${log.error_message || 'OK'}</td>
+                        <td>${log.screenshot ? `<a href="${log.screenshot}" target="_blank" style="color:var(--accent-color); text-decoration:none; font-weight:600;">👁️ Foto</a>` : '-'}</td>
                     </tr>
                 `).join('');
-            } catch (error) {
-                console.error('Chyba při načítání logů:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         async function runAutomation(notebookId) {
-            const buttons = [runDBeaver, runPlayground];
+            const loading = document.getElementById('loading');
+            const statusHeader = document.getElementById('statusHeader');
+            const currentStep = document.getElementById('currentStep');
+            const dbeaverBtn = document.getElementById('dbeaverBtn');
+            const formBtn = document.getElementById('formBtn');
+            const spinner = document.querySelector('.spinner');
 
-            // UI State - Running
-            buttons.forEach(btn => btn.disabled = true);
+            loading.style.display = 'block';
             spinner.style.display = 'block';
-            statusMessage.textContent = `Spouštím notebook ${notebookId}... Čekejte prosím.`;
-            statusMessage.style.color = 'var(--accent-color)';
+            statusHeader.textContent = 'Proces se spouští...';
+            statusHeader.style.color = '#3b82f6';
+            currentStep.textContent = '';
+            dbeaverBtn.disabled = true;
+            formBtn.disabled = true;
+
+            let pollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/status', { headers: { 'X-API-Key': API_KEY } });
+                    const data = await response.json();
+                    if (data.step) currentStep.textContent = `📍 ${data.step}`;
+                } catch (e) { }
+            }, 1000);
 
             try {
                 const response = await fetch(`/run/${notebookId}`, {
                     method: 'POST',
                     headers: { 'X-API-Key': API_KEY }
                 });
+                clearInterval(pollInterval);
                 const result = await response.json();
 
-                if (response.ok) {
-                    statusMessage.textContent = `✅ Hotovo! Notebook ${notebookId} úspěšně doběhl.`;
-                    statusMessage.style.color = 'var(--success-color)';
-                } else if (response.status === 401) {
-                    statusMessage.textContent = '❌ Chyba: Neautorizovaný přístup (špatný API klíč)';
-                    statusMessage.style.color = 'var(--error-color)';
+                if (result.status === 'success') {
+                    statusHeader.textContent = 'Proces spuštěn';
+                    statusHeader.style.color = '#10b981';
+                    currentStep.textContent = '✅ Běh dopadl úspěšně';
                 } else {
-                    statusMessage.textContent = '❌ Chyba: ' + (result.message || 'Neznámá chyba');
-                    statusMessage.style.color = 'var(--error-color)';
+                    statusHeader.textContent = 'Proces selhal';
+                    statusHeader.style.color = '#ef4444';
+                    currentStep.textContent = `❌ ${result.message}`;
                 }
             } catch (error) {
-                statusMessage.textContent = '❌ Selhalo spojení se serverem.';
-                statusMessage.style.color = 'var(--error-color)';
+                clearInterval(pollInterval);
+                statusHeader.textContent = 'Chyba připojení';
+                statusHeader.style.color = '#ef4444';
+                currentStep.textContent = 'Nelze se spojit se serverem.';
             } finally {
-                buttons.forEach(btn => btn.disabled = false);
+                dbeaverBtn.disabled = false;
+                formBtn.disabled = false;
                 spinner.style.display = 'none';
-                fetchLogs(); // Obnovíme tabulku logů po dokončení
+                fetchLogs();
             }
         }
-
-        runDBeaver.addEventListener('click', () => runAutomation('dbeaver'));
-        runPlayground.addEventListener('click', () => runAutomation('playground'));
-
-        // Počáteční načtení logů
         fetchLogs();
     </script>
 </body>
