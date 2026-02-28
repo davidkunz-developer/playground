@@ -32,7 +32,7 @@
             justify-content: center;
             min-height: 100vh;
             overflow-x: hidden;
-            padding: 3rem 1rem;
+            padding: 1.5rem 1rem;
         }
 
         .container {
@@ -41,242 +41,157 @@
             z-index: 10;
         }
 
-        /* Abstract Background Elements */
         .glow-orb {
             position: fixed;
-            width: 600px;
-            height: 600px;
+            width: 400px;
+            height: 400px;
             background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
-            top: -200px;
-            left: -200px;
+            top: -100px;
+            left: -100px;
             z-index: 1;
             pointer-events: none;
         }
 
         header {
             text-align: center;
-            margin-bottom: 4rem;
-            animation: slideDown 1s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            margin-bottom: 2rem;
         }
 
         h1 {
-            font-size: 4rem;
+            font-size: 2.5rem;
             font-weight: 800;
             margin: 0;
-            letter-spacing: -0.05em;
+            letter-spacing: -0.02em;
             background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         header p {
-            font-size: 1.25rem;
+            font-size: 0.9rem;
             color: var(--accent-glow);
-            font-weight: 300;
-            margin-top: 0.5rem;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
         }
 
-        /* Central Control Panel */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 2.5rem;
-            padding: 4rem;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .glass-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            margin-bottom: 2rem;
         }
 
         .button-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .action-btn {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
-            padding: 2.5rem;
-            border-radius: 2rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
-            flex-direction: column;
             align-items: center;
             gap: 1rem;
-            position: relative;
-            overflow: hidden;
+            text-align: left;
         }
 
-        .action-btn:hover:not(:disabled) {
+        .action-btn:active {
             background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent-glow);
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.2);
+            transform: scale(0.98);
         }
 
         .action-btn .icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            transition: transform 0.5s ease;
-        }
-
-        .action-btn:hover .icon {
-            transform: scale(1.2) rotate(5deg);
+            font-size: 2rem;
         }
 
         .action-btn h3 {
             margin: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            font-size: 1.2rem;
         }
 
         .action-btn p {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #94a3b8;
-            font-weight: 400;
         }
 
-        /* Status Area */
         #status-container {
-            margin-top: 2rem;
-            padding: 2rem;
-            border-radius: 1.5rem;
+            margin-top: 1rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
             background: rgba(0, 0, 0, 0.3);
             display: none;
             border: 1px solid rgba(56, 189, 248, 0.2);
-            animation: fadeIn 0.5s ease-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .status-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .step-info {
-            font-size: 1.1rem;
-            color: #94a3b8;
-        }
-
-        /* Logs Table */
-
-        /* Logs Table */
         .logs-container {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 2.5rem;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-radius: 1.5rem;
+            overflow-x: auto;
         }
 
         .logs-title-bar {
-            padding: 2rem 3rem;
+            padding: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid var(--glass-border);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px;
         }
 
         th {
-            padding: 1.5rem 3rem;
+            padding: 1rem 1.5rem;
             text-align: left;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border-bottom: 1px solid var(--glass-border);
         }
 
         td {
-            padding: 1.5rem 3rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .badge {
-            padding: 0.5rem 1rem;
-            border-radius: 0.75rem;
-            font-size: 0.85rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            text-transform: uppercase;
         }
 
         .status-success {
             background: rgba(16, 185, 129, 0.1);
             color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .status-error {
             background: rgba(244, 63, 94, 0.1);
             color: #fb7185;
-            border: 1px solid rgba(244, 63, 94, 0.2);
         }
 
         .btn-refresh {
             background: none;
             border: 1px solid var(--accent-glow);
             color: var(--accent-glow);
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-refresh:hover {
-            background: var(--accent-glow);
-            color: var(--bg-deep);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -291,43 +206,47 @@
 
         <section class="glass-panel">
             <div class="button-grid">
-                <button class="action-btn" id="dbeaverBtn" onclick="runAutomation('dbeaver')">
+                <button class="action-btn" onclick="runAutomation('dbeaver')">
                     <span class="icon">🗄️</span>
-                    <h3>OPEN DBEAVER</h3>
-                    <p>Launch database management tool</p>
+                    <div>
+                        <h3>OPEN DBEAVER</h3>
+                        <p>Database management</p>
+                    </div>
                 </button>
-                <button class="action-btn" id="formBtn" onclick="runAutomation('playground')">
+                <button class="action-btn" onclick="runAutomation('playground')">
                     <span class="icon">🤖</span>
-                    <h3>FILL FORM</h3>
-                    <p>Execute Selenium web automation</p>
+                    <div>
+                        <h3>FILL FORM</h3>
+                        <p>Selenium web automation</p>
+                    </div>
                 </button>
             </div>
 
             <div id="status-container">
                 <div class="status-header" id="statusHeader"
-                    style="font-size: 1.5rem; font-weight:700; margin-bottom: 0.5rem;">MISSION STATUS</div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem;">
-                    <div class="step-info" id="currentStep" style="color: #fff; font-size: 1.2rem; font-weight: 600;">
+                    style="font-size: 1.2rem; font-weight:700; margin-bottom: 0.5rem;">MISSION STATUS</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem;">
+                    <div class="step-info" id="currentStep" style="color: #fff; font-size: 1rem; font-weight: 600;">
                         Probíhá inicializace...</div>
                     <div id="stepCounter"
-                        style="color: var(--accent-glow); font-weight: 800; font-size: 1rem; letter-spacing: 0.1em; white-space: nowrap;">
-                        0 / 7 (0%)</div>
+                        style="color: var(--accent-glow); font-weight: 800; font-size: 0.9rem; white-space: nowrap;">0 /
+                        7 (0%)</div>
                 </div>
             </div>
         </section>
 
         <section class="logs-container">
             <div class="logs-title-bar">
-                <h2 style="margin:0; font-weight: 800; font-size: 1.5rem;">MISSION LOGS</h2>
-                <button class="btn-refresh" onclick="fetchLogs()">REFRESH DATABASE ↻</button>
+                <h2 style="margin:0; font-size: 1.2rem;">MISSION LOGS</h2>
+                <button class="btn-refresh" onclick="fetchLogs()">REFRESH ↻</button>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>MISSION TIME</th>
+                        <th>TIME</th>
                         <th>STATUS</th>
-                        <th>MISSION DATA / ERROR MESSAGE</th>
-                        <th>SNAPSHOT</th>
+                        <th>DATA / ERROR</th>
+                        <th>SNAP</th>
                     </tr>
                 </thead>
                 <tbody id="logsTableBody"></tbody>
@@ -336,6 +255,7 @@
     </div>
 
     <script>
+        const API_KEY = 'moje-tajne-heslo-123';
         const BASE_URL = 'https://playground-1-tgou.onrender.com';
         const logsTableBody = document.getElementById('logsTableBody');
 
@@ -345,16 +265,16 @@
                 const logs = await response.json();
                 logsTableBody.innerHTML = logs.map(log => `
                     <tr>
-                        <td style="font-weight: 600; color: #94a3b8;">${log.datum} • <span style="color:#fff">${log.cas}</span></td>
+                        <td style="color: #94a3b8;">${log.datum}<br>${log.cas}</td>
                         <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status.toUpperCase()}</span></td>
                         <td style="color: ${log.status === 'ok' ? '#cbd5e1' : '#f43f5e'}">${log.error_message || 'NOMINAL'}</td>
-                        <td>${log.screenshot ? `<a href="${BASE_URL}${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800; border-bottom: 2px solid var(--accent-glow)">VIEW IMAGE</a>` : '-'}</td>
+                        <td>${log.screenshot ? `<a href="${BASE_URL}${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800;">VIEW</a>` : '-'}</td>
                     </tr>
                 `).join('');
             } catch (e) { console.error(e); }
         }
 
-        async function runAutomation(actionId) {
+        async function runAutomation(notebookId) {
             const container = document.getElementById('status-container');
             const header = document.getElementById('statusHeader');
             const step = document.getElementById('currentStep');
@@ -362,9 +282,9 @@
             const btns = document.querySelectorAll('.action-btn');
 
             container.style.display = 'block';
-            header.textContent = 'MISSION INITIALIZING...';
+            header.textContent = 'INITIALIZING...';
             header.style.color = '#38bdf8';
-            step.textContent = 'Establishing secure uplink...';
+            step.textContent = 'Launching...';
             counter.textContent = 'WAITING...';
             btns.forEach(b => b.disabled = true);
 
@@ -376,21 +296,20 @@
                     if (data.step) {
                         if (data.step === 'DOKONČENO') {
                             clearInterval(pollInterval);
-                            header.textContent = 'MISSION ACCOMPLISHED';
+                            header.textContent = 'ACCOMPLISHED';
                             header.style.color = '#10b981';
-                            step.textContent = 'Všechny operace dokončeny.';
-                            counter.textContent = 'STEP 7 / 7 (100%)';
+                            step.textContent = 'Vše hotovo.';
+                            counter.textContent = '7 / 7 (100%)';
                             btns.forEach(b => b.disabled = false);
                             setTimeout(fetchLogs, 1000);
                         } else if (data.step.startsWith('CHYBA:')) {
                             clearInterval(pollInterval);
-                            header.textContent = 'MISSION FAILED';
+                            header.textContent = 'FAILED';
                             header.style.color = '#f43f5e';
                             step.textContent = data.step;
                             counter.textContent = 'FAILED';
                             btns.forEach(b => b.disabled = false);
                         } else if (data.step.includes('|')) {
-                            // Formát: "Název Kroku | X | Y"
                             const parts = data.step.split('|');
                             const name = parts[0];
                             const curr = parseInt(parts[1]);
@@ -398,37 +317,32 @@
                             const pct = Math.round((curr / total) * 100);
 
                             step.textContent = name;
-                            counter.textContent = `STEP ${curr} / ${total} (${pct}%)`;
-                            header.textContent = 'MISSION IN PROGRESS';
+                            counter.textContent = `${curr} / ${total} (${pct}%)`;
+                            header.textContent = 'IN PROGRESS';
                             header.style.color = '#38bdf8';
                         } else {
-                            // Průběžné aktualizace
                             step.textContent = data.step;
                         }
                     }
-                } catch (e) { console.error("Polling error:", e); }
+                } catch (e) { console.error(e); }
             }, 800);
 
             try {
-                // Jen pošleme povel a dál už jen čekáme na polling
-                const res = await fetch(`${BASE_URL}/run/${actionId}`, {
+                const res = await fetch(`${BASE_URL}/run/${notebookId}`, {
                     method: 'POST',
                     headers: { 'X-API-Key': API_KEY }
                 });
-
                 if (!res.ok) {
                     const result = await res.json();
                     clearInterval(pollInterval);
-                    header.textContent = 'START FAILED';
+                    header.textContent = 'FAILED';
                     header.style.color = '#f43f5e';
-                    step.textContent = `Chyba při spouštění: ${result.message}`;
+                    step.textContent = `Chyba: ${result.message}`;
                     btns.forEach(b => b.disabled = false);
                 }
             } catch (e) {
                 clearInterval(pollInterval);
-                header.textContent = 'UPLINK LOST';
-                header.style.color = '#f43f5e';
-                step.textContent = 'Nelze se spojit se serverem.';
+                header.textContent = 'ERROR';
                 btns.forEach(b => b.disabled = false);
             }
         }

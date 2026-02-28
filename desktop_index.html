@@ -55,19 +55,6 @@
         header {
             text-align: center;
             margin-bottom: 4rem;
-            animation: slideDown 1s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         h1 {
@@ -98,8 +85,6 @@
             padding: 4rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
         }
 
         .button-grid {
@@ -127,7 +112,6 @@
             background: rgba(255, 255, 255, 0.08);
             border-color: var(--accent-glow);
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.2);
         }
 
         .action-btn .icon {
@@ -155,69 +139,69 @@
         }
 
         .logs-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
 
-            .logs-container {
-                background: var(--glass-bg);
-                border: 1px solid var(--glass-border);
-                border-radius: 2.5rem;
-                overflow: hidden;
-            }
+        .logs-title-bar {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
 
-            .logs-title-bar {
-                padding: 2rem 3rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid var(--glass-border);
-            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
+        th {
+            padding: 1.5rem 3rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--glass-border);
+        }
 
-            th {
-                padding: 1.5rem 3rem;
-                text-align: left;
-                font-size: 0.85rem;
-                color: #64748b;
-                text-transform: uppercase;
-                border-bottom: 1px solid var(--glass-border);
-            }
+        td {
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
 
-            td {
-                padding: 1.5rem 3rem;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            }
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
 
-            .badge {
-                padding: 0.5rem 1rem;
-                border-radius: 0.75rem;
-                font-size: 0.85rem;
-                font-weight: 700;
-                text-transform: uppercase;
-            }
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
 
-            .status-success {
-                background: rgba(16, 185, 129, 0.1);
-                color: #34d399;
-                border: 1px solid rgba(16, 185, 129, 0.2);
-            }
+        .status-error {
+            background: rgba(244, 63, 94, 0.1);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
 
-            .status-error {
-                background: rgba(244, 63, 94, 0.1);
-                color: #fb7185;
-                border: 1px solid rgba(244, 63, 94, 0.2);
-            }
-
-            .btn-refresh {
-                background: none;
-                border: 1px solid var(--accent-glow);
-                color: var(--accent-glow);
-                padding: 0.6rem 1.2rem;
-                border-radius: 0.75rem;
-                cursor: pointer;
-            }
+        .btn-refresh {
+            background: none;
+            border: 1px solid var(--accent-glow);
+            color: var(--accent-glow);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -331,7 +315,6 @@
                             counter.textContent = 'FAILED';
                             btns.forEach(b => b.disabled = false);
                         } else if (data.step.includes('|')) {
-                            // Formát: "Název Kroku | X | Y"
                             const parts = data.step.split('|');
                             const name = parts[0];
                             const curr = parseInt(parts[1]);
@@ -339,7 +322,7 @@
                             const pct = Math.round((curr / total) * 100);
 
                             step.textContent = name;
-                            counter.textContent = `STEP ${curr} / ${total} (${pct}%)`;
+                            counter.textContent = `${curr} / ${total} (${pct}%)`;
                             header.textContent = 'MISSION IN PROGRESS';
                             header.style.color = '#38bdf8';
                         } else {
