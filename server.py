@@ -42,8 +42,13 @@ app.mount(f"/{SCREENSHOT_DIR}", StaticFiles(directory=SCREENSHOT_DIR), name=SCRE
 
 @app.get("/")
 async def get_index():
-    # Používáme mobile_index.html pro webový přístup
+    # Výchozí pro mobily/web
     return FileResponse("mobile_index.html")
+
+@app.get("/desktop")
+async def get_desktop():
+    # Speciální route pro desktopovou aplikaci
+    return FileResponse("desktop_index.html")
 
 @app.get("/logs")
 async def get_logs(api_key: str = Depends(verify_api_key)):
