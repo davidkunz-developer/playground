@@ -8,7 +8,19 @@ import uvicorn
 import json
 import time
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+# --- CORS KONFIGURACE ---
+# Musíme povolit přístup z jiných domén (např. z tvé lokální aplikace na ploše)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- KONFIGURACE ZABEZPEČENÍ ---
 # Na Renderu si toto nastavíš v 'Environment Variables'
@@ -78,7 +90,9 @@ async def run_automation(action_id: str, background_tasks: BackgroundTasks, api_
     # Mapování akcí na čisté Python skripty
     script_map = {
         "automation_playground": "automation_worker.py",
-        "dbeaver_launcher": "dbeaver_worker.py"
+        "playground": "automation_worker.py",
+        "dbeaver_launcher": "dbeaver_worker.py",
+        "dbeaver": "dbeaver_worker.py"
     }
 
     target_script = script_map.get(action_id, "automation_worker.py")
