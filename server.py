@@ -31,10 +31,10 @@ if not os.path.exists(SCREENSHOT_DIR):
 
 app.mount(f"/{SCREENSHOT_DIR}", StaticFiles(directory=SCREENSHOT_DIR), name=SCREENSHOT_DIR)
 
-@app.get("/", response_class=HTMLResponse)
-async def get_frontend():
-    with open("index.html", "r", encoding="utf-8") as f:
-        return f.read()
+@app.get("/")
+async def get_index():
+    # Používáme main_v2.html pro vynucení aktualizace frontendu u uživatele
+    return FileResponse("main_v2.html")
 
 @app.get("/logs")
 async def get_logs(api_key: str = Depends(verify_api_key)):

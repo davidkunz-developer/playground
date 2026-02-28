@@ -7,9 +7,9 @@ import time
 SERVER_URL = "https://playground-1-tgou.onrender.com"
 
 def start_app():
-    # Vytvoří okno, které se chová jako desktopová aplikace
-    # Načte přímo tvůj frontend z Renderu
-    webview.create_window('Robot Cockpit', SERVER_URL, width=1200, height=800)
+    # Přidáme časové razítko k URL, aby se vynutilo načtení nejnovější verze (bypass cache)
+    unique_url = f"{SERVER_URL}?v={int(time.time())}"
+    webview.create_window('AI Robo Cockpit', unique_url, width=1200, height=800)
     webview.start()
 
 if __name__ == "__main__":
