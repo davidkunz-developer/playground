@@ -1,5 +1,5 @@
 from fastapi import FastAPI, BackgroundTasks, Header, HTTPException, Depends
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import papermill as pm
 import pandas as pd
