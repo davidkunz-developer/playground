@@ -259,11 +259,14 @@
             </div>
 
             <div id="status-container">
-                <div class="status-header" id="statusHeader" style="font-size: 1.5rem; font-weight:700;">PROCES SE
-                    SPOUŠTÍ</div>
-                <div class="step-info" id="currentStep" style="color: #94a3b8;">Inicializace systému...</div>
-                <div class="progress-track">
-                    <div class="progress-bar" id="progressBar" style="width: 10%;"></div>
+                <div class="status-header" id="statusHeader"
+                    style="font-size: 1.5rem; font-weight:700; margin-bottom: 0.5rem;">MISSION INITIALIZATION</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div class="step-info" id="currentStep" style="color: #fff; font-size: 1.2rem; font-weight: 600;">
+                        Příprava systému...</div>
+                    <div id="stepCounter"
+                        style="color: var(--accent-glow); font-weight: 800; font-size: 1rem; letter-spacing: 0.1em;">
+                        STEP 0 / 7 (0%)</div>
                 </div>
             </div>
         </section>
@@ -278,7 +281,7 @@
                     <tr>
                         <th>MISSION TIME</th>
                         <th>STATUS</th>
-                        <th>TELEMETRY DATA</th>
+                        <th>MISSION DATA / ERROR MESSAGE</th>
                         <th>SNAPSHOT</th>
                     </tr>
                 </thead>
@@ -299,7 +302,7 @@
                 logsTableBody.innerHTML = logs.map(log => `
                     <tr>
                         <td style="font-weight: 600; color: #94a3b8;">${log.datum} • <span style="color:#fff">${log.cas}</span></td>
-                        <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status}</span></td>
+                        <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status.toUpperCase()}</span></td>
                         <td style="color: ${log.status === 'ok' ? '#cbd5e1' : '#f43f5e'}">${log.error_message || 'NOMINAL'}</td>
                         <td>${log.screenshot ? `<a href="${BASE_URL}${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800; border-bottom: 2px solid var(--accent-glow)">VIEW IMAGE</a>` : '-'}</td>
                     </tr>
@@ -311,14 +314,14 @@
             const container = document.getElementById('status-container');
             const header = document.getElementById('statusHeader');
             const step = document.getElementById('currentStep');
-            const bar = document.getElementById('progressBar');
+            const counter = document.getElementById('stepCounter');
             const btns = document.querySelectorAll('.action-btn');
 
             container.style.display = 'block';
             header.textContent = 'MISSION INITIALIZING...';
             header.style.color = '#38bdf8';
             step.textContent = 'Establishing secure uplink...';
-            bar.style.width = '10%';
+            counter.textContent = 'WAITING...';
             btns.forEach(b => b.disabled = true);
 
             let pollInterval = setInterval(async () => {
@@ -331,25 +334,31 @@
                             clearInterval(pollInterval);
                             header.textContent = 'MISSION ACCOMPLISHED';
                             header.style.color = '#10b981';
-                            step.textContent = '✅ Všechny operace proběhly v pořádku.';
-                            bar.style.width = '100%';
+                            step.textContent = 'Všechny operace dokončeny.';
+                            counter.textContent = 'STEP 7 / 7 (100%)';
                             btns.forEach(b => b.disabled = false);
                             setTimeout(fetchLogs, 1000);
                         } else if (data.step.startsWith('CHYBA:')) {
                             clearInterval(pollInterval);
                             header.textContent = 'MISSION FAILED';
                             header.style.color = '#f43f5e';
-                            step.textContent = `❌ ${data.step}`;
+                            step.textContent = data.step;
+                            counter.textContent = 'FAILED';
                             btns.forEach(b => b.disabled = false);
+                        } else if (data.step.includes('|')) {
+                            // Formát: "Název Kroku | X | Y"
+                            const parts = data.step.split('|');
+                            const name = parts[0];
+                            const curr = parseInt(parts[1]);
+                            const total = parseInt(parts[2]);
+                            const pct = Math.round((curr / total) * 100);
+
+                            step.textContent = name;
+                            counter.textContent = `STEP ${curr} / ${total} (${pct}%)`;
+                            header.textContent = 'MISSION IN PROGRESS';
+                            header.style.color = '#38bdf8';
                         } else {
                             step.textContent = data.step;
-                            header.textContent = 'MISSION IN PROGRESS...';
-                            header.style.color = '#38bdf8';
-                            if (data.step.includes('prohlížeč')) bar.style.width = '20%';
-                            if (data.step.includes('Načítám') || data.step.includes('Naviguji')) bar.style.width = '40%';
-                            if (data.step.includes('cookies')) bar.style.width = '50%';
-                            if (data.step.includes('formulář')) bar.style.width = '70%';
-                            if (data.step.includes('Odesílám')) bar.style.width = '90%';
                         }
                     }
                 } catch (e) { console.error(e); }
@@ -365,7 +374,7 @@
                     clearInterval(pollInterval);
                     header.textContent = 'START FAILED';
                     header.style.color = '#f43f5e';
-                    step.textContent = `❌ ${result.message}`;
+                    step.textContent = `Chyba při spouštění: ${result.message}`;
                     btns.forEach(b => b.disabled = false);
                 }
             } catch (e) {

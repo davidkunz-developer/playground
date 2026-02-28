@@ -9,6 +9,7 @@ def run(driver, wait):
     submit_btn = driver.find_element(By.CSS_SELECTOR, "#contact-form button[type='submit']")
     driver.execute_script("arguments[0].click();", submit_btn)
     
-    # Čekáme na potvrzení (obsahuje 'Odesláno' nebo 'success')
-    wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Odesláno') or contains(text(), 'Děkujeme') or contains(text(), 'success')]")))
+    # Čekáme na potvrzení - podle script.js se v elementu #form-status objeví text "ODESLÁNO"
+    print("Čekám na potvrzení 'ODESLÁNO'...")
+    wait.until(EC.text_to_be_present_in_element((By.ID, "form-status"), "ODESLÁNO"))
     time.sleep(1)

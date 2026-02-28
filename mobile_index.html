@@ -320,10 +320,14 @@
             </div>
 
             <div id="status-container">
-                <div class="status-header" id="statusHeader">PROCES SE SPOUŠTÍ</div>
-                <div class="step-info" id="currentStep">Inicializace systému...</div>
-                <div class="progress-track">
-                    <div class="progress-bar" id="progressBar" style="width: 10%;"></div>
+                <div class="status-header" id="statusHeader"
+                    style="font-size: 1.5rem; font-weight:700; margin-bottom: 0.5rem;">MISSION INITIALIZATION</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div class="step-info" id="currentStep" style="color: #fff; font-size: 1.2rem; font-weight: 600;">
+                        Příprava systému...</div>
+                    <div id="stepCounter"
+                        style="color: var(--accent-glow); font-weight: 800; font-size: 1rem; letter-spacing: 0.1em;">
+                        STEP 0 / 7 (0%)</div>
                 </div>
             </div>
         </section>
@@ -338,7 +342,7 @@
                     <tr>
                         <th>MISSION TIME</th>
                         <th>STATUS</th>
-                        <th>TELEMETRY DATA</th>
+                        <th>MISSION DATA / ERROR MESSAGE</th>
                         <th>SNAPSHOT</th>
                     </tr>
                 </thead>
@@ -348,82 +352,82 @@
     </div>
 
     <script>
-        const API_KEY = 'moje-tajne-heslo-123';
+        const BASE_URL = 'https://playground-1-tgou.onrender.com';
         const logsTableBody = document.getElementById('logsTableBody');
 
         async function fetchLogs() {
             try {
-                const response = await fetch('/logs', { headers: { 'X-API-Key': API_KEY } });
+                const response = await fetch(`${BASE_URL}/logs`, { headers: { 'X-API-Key': API_KEY } });
                 const logs = await response.json();
                 logsTableBody.innerHTML = logs.map(log => `
                     <tr>
                         <td style="font-weight: 600; color: #94a3b8;">${log.datum} • <span style="color:#fff">${log.cas}</span></td>
-                        <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status}</span></td>
+                        <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status.toUpperCase()}</span></td>
                         <td style="color: ${log.status === 'ok' ? '#cbd5e1' : '#f43f5e'}">${log.error_message || 'NOMINAL'}</td>
-                        <td>${log.screenshot ? `<a href="${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800; border-bottom: 2px solid var(--accent-glow)">VIEW IMAGE</a>` : '-'}</td>
+                        <td>${log.screenshot ? `<a href="${BASE_URL}${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800; border-bottom: 2px solid var(--accent-glow)">VIEW IMAGE</a>` : '-'}</td>
                     </tr>
                 `).join('');
             } catch (e) { console.error(e); }
         }
 
-        async function runAutomation(notebookId) {
+        async function runAutomation(actionId) {
             const container = document.getElementById('status-container');
             const header = document.getElementById('statusHeader');
             const step = document.getElementById('currentStep');
-            const bar = document.getElementById('progressBar');
+            const counter = document.getElementById('stepCounter');
             const btns = document.querySelectorAll('.action-btn');
 
             container.style.display = 'block';
             header.textContent = 'MISSION INITIALIZING...';
             header.style.color = '#38bdf8';
             step.textContent = 'Establishing secure uplink...';
-            bar.style.width = '10%';
+            counter.textContent = 'WAITING...';
             btns.forEach(b => b.disabled = true);
 
-            // Polling statusu - Tady se teď děje veškerá magie sledování konce
             let pollInterval = setInterval(async () => {
                 try {
-                    const res = await fetch('/status', { headers: { 'X-API-Key': API_KEY } });
+                    const res = await fetch(`${BASE_URL}/status`, { headers: { 'X-API-Key': API_KEY } });
                     const data = await res.json();
 
                     if (data.step) {
                         if (data.step === 'DOKONČENO') {
-                            clearInterval(pollInterval); // Zastavíme polling až TEĎ
+                            clearInterval(pollInterval);
                             header.textContent = 'MISSION ACCOMPLISHED';
                             header.style.color = '#10b981';
-                            step.textContent = '✅ Všechny operace proběhly v pořádku.';
-                            bar.style.width = '100%';
+                            step.textContent = 'Všechny operace dokončeny.';
+                            counter.textContent = 'STEP 7 / 7 (100%)';
                             btns.forEach(b => b.disabled = false);
                             setTimeout(fetchLogs, 1000);
                         } else if (data.step.startsWith('CHYBA:')) {
                             clearInterval(pollInterval);
                             header.textContent = 'MISSION FAILED';
                             header.style.color = '#f43f5e';
-                            step.textContent = `❌ ${data.step}`;
-                            bar.style.width = '100%';
+                            step.textContent = data.step;
+                            counter.textContent = 'FAILED';
                             btns.forEach(b => b.disabled = false);
-                            setTimeout(fetchLogs, 1000);
+                        } else if (data.step.includes('|')) {
+                            // Formát: "Název Kroku | X | Y"
+                            const parts = data.step.split('|');
+                            const name = parts[0];
+                            const curr = parseInt(parts[1]);
+                            const total = parseInt(parts[2]);
+                            const pct = Math.round((curr / total) * 100);
+
+                            step.textContent = name;
+                            counter.textContent = `STEP ${curr} / ${total} (${pct}%)`;
+                            header.textContent = 'MISSION IN PROGRESS';
+                            header.style.color = '#38bdf8';
+                        } else {
                             // Průběžné aktualizace
                             step.textContent = data.step;
-                            header.textContent = 'MISSION IN PROGRESS...';
-                            header.style.color = '#38bdf8';
-
-                            // Animace progress baru
-                            if (data.step.includes('prohlížeč')) bar.style.width = '20%';
-                            if (data.step.includes('Načítám') || data.step.includes('Naviguji')) bar.style.width = '40%';
-                            if (data.step.includes('cookies')) bar.style.width = '50%';
-                            if (data.step.includes('formulář')) bar.style.width = '70%';
-                            if (data.step.includes('Odesílám')) bar.style.width = '90%';
                         }
                     }
-                } catch (e) {
-                    console.error("Polling error:", e);
-                }
+                } catch (e) { console.error("Polling error:", e); }
             }, 800);
 
             try {
                 // Jen pošleme povel a dál už jen čekáme na polling
-                const res = await fetch(`/run/${notebookId}`, {
+                const res = await fetch(`${BASE_URL}/run/${actionId}`, {
                     method: 'POST',
                     headers: { 'X-API-Key': API_KEY }
                 });
@@ -433,7 +437,7 @@
                     clearInterval(pollInterval);
                     header.textContent = 'START FAILED';
                     header.style.color = '#f43f5e';
-                    step.textContent = `❌ Chyba při spouštění: ${result.message}`;
+                    step.textContent = `Chyba při spouštění: ${result.message}`;
                     btns.forEach(b => b.disabled = false);
                 }
             } catch (e) {
