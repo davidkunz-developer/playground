@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.ipynb_checkpoints
+executed_*.ipynb
+automation_log.csv
+screenshots/
+.env
