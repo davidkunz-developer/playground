@@ -83,9 +83,9 @@ def execute_worker_task(script_name: str):
 
 @app.post("/run/{action_id}")
 async def run_automation(action_id: str, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
-    # Inicializace statusu pro uživatele
+    # Inicializace statusu pro uživatele - bez špendlíků a zbytečností
     with open("current_step.txt", "w", encoding="utf-8") as f: 
-        f.write("Zahajuji odlehčenou misi...")
+        f.write("Příprava mise...")
     
     # Mapování akcí na čisté Python skripty
     script_map = {

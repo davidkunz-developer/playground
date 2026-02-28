@@ -8,8 +8,8 @@ error_message = "Chyba při zpracování cookie lišty."
 
 def run(driver, wait):
     try:
-        # Krátké čekání na cookies
-        cookie_wait = WebDriverWait(driver, 5)
+        # Čekání na cookies (10 sekund dle požadavku)
+        cookie_wait = WebDriverWait(driver, 10)
         cookie_btn = cookie_wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'SOUHLASÍM') or contains(., 'Rozumím') or contains(., 'Accept')]")))
         driver.execute_script("arguments[0].click();", cookie_btn)
         time.sleep(1)

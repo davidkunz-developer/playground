@@ -58,6 +58,9 @@ def run():
                 driver, wait = module.run()
             else:
                 module.run(driver, wait)
+            
+            # Krátká pauza pro UI refresh
+            time.sleep(0.5)
 
         # Finální screenshot
         set_step("Ukládám potvrzení")
