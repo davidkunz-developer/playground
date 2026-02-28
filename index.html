@@ -178,12 +178,18 @@
 
         <main>
             <section class="control-panel">
-                <div id="spinner" class="spinner"></div>
-                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button id="runDBeaver" class="action-button">OPEN DBEAVER</button>
-                    <button id="runPlayground" class="action-button">FILL FORM</button>
+                <div class="actions">
+                    <button class="btn btn-primary" id="dbeaverBtn" onclick="runAutomation('dbeaver')">OPEN
+                        DBEAVER</button>
+                    <button class="btn btn-primary" id="formBtn" onclick="runAutomation('playground')">FILL
+                        FORM</button>
                 </div>
-                <div id="statusMessage" class="status"></div>
+
+                <div id="loading" class="loading" style="display: none;">
+                    <div id="statusHeader" style="font-weight: bold; margin-bottom: 10px;"></div>
+                    <div id="currentStep" style="font-style: italic; color: #a1a1aa;"></div>
+                    <div class="spinner"></div>
+                </div>
             </section>
 
             <section class="logs-section">
@@ -211,10 +217,6 @@
     </div>
 
     <script>
-        const runDBeaver = document.getElementById('runDBeaver');
-        const runPlayground = document.getElementById('runPlayground');
-        const statusMessage = document.getElementById('statusMessage');
-        const spinner = document.getElementById('spinner');
         const logsTableBody = document.getElementById('logsTableBody');
 
         const API_KEY = 'moje-tajne-heslo-123'; // Musí se shodovat se serverem

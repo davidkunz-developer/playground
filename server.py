@@ -49,11 +49,25 @@ async def get_logs(api_key: str = Depends(verify_api_key)):
         print(f"Chyba při čtení logů: {e}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.get("/status")
+async def get_status(api_key: str = Depends(verify_api_key)):
+    if not os.path.exists("current_step.txt"):
+        return JSONResponse(content={"step": "Čekám na instrukce..."})
+    try:
+        with open("current_step.txt", "r", encoding="utf-8") as f:
+            return JSONResponse(content={"step": f.read()})
+    except:
+        return JSONResponse(content={"step": "Pracuji..."})
+
 @app.post("/run/{notebook_id}")
 async def run_automation(notebook_id: str, api_key: str = Depends(verify_api_key)):
     if notebook_id not in NOTEBOOKS:
         return JSONResponse(content={"status": "error", "message": f"Notebook '{notebook_id}' nebyl nalezen."}, status_code=404)
     
+    # Reset statusu na začátku
+    with open("current_step.txt", "w", encoding="utf-8") as f: 
+        f.write("Příprava notebooku k běhu...")
+
     notebook_file = NOTEBOOKS[notebook_id]
     try:
         # Výstupní notebook uložíme do dočasného souboru
@@ -63,8 +77,11 @@ async def run_automation(notebook_id: str, api_key: str = Depends(verify_api_key
             output_path,
             parameters={} 
         )
+        # Smažeme status po dokončení
+        if os.path.exists("current_step.txt"): os.remove("current_step.txt")
         return {"status": "success", "message": f"Notebook '{notebook_id}' byl úspěšně spuštěn."}
     except Exception as e:
+        if os.path.exists("current_step.txt"): os.remove("current_step.txt")
         return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
 
 if __name__ == "__main__":
