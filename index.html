@@ -4,125 +4,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Control Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Robot AI Cockpit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --text-color: #f1f5f9;
-            --success-color: #22c55e;
-            --error-color: #ef4444;
+            --bg-deep: #020617;
+            --accent-glow: #38bdf8;
+            --accent-deep: #1d4ed8;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-glow: #e2e8f0;
+            --success: #10b981;
+            --error: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #020617);
+            color: var(--text-glow);
             margin: 0;
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            padding: 2rem;
+            overflow-x: hidden;
+            padding: 3rem 1rem;
         }
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
+            z-index: 10;
+        }
+
+        /* Abstract Background Elements */
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            z-index: 1;
+            pointer-events: none;
         }
 
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
+            animation: slideDown 1s ease-out;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .control-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            padding: 3rem;
-            border-radius: 2rem;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            margin-bottom: 2.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .actions {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-        }
-
-        .btn {
-            position: relative;
-            padding: 1.2rem 2.5rem;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 1rem;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border: none;
-            overflow: hidden;
-            min-width: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
-            color: white;
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.5);
-            filter: brightness(1.1);
-        }
-
-        .btn-primary:active:not(:disabled) {
-            transform: translateY(0) scale(0.98);
-        }
-
-        .btn:disabled {
-            background: #334155;
-            color: #64748b;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        /* Status & Loading area */
-        .loading {
-            background: rgba(15, 23, 42, 0.5);
-            padding: 2rem;
-            border-radius: 1.5rem;
-            border: 1px dashed rgba(56, 189, 248, 0.3);
-            margin-top: 1rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
+        @keyframes slideDown {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(-30px);
             }
 
             to {
@@ -131,153 +71,347 @@
             }
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top-color: #38bdf8;
-            animation: spin 1s linear infinite;
-            margin: 1.5rem auto 0;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        @keyframes spin {
+        header p {
+            font-size: 1.25rem;
+            color: var(--accent-glow);
+            font-weight: 300;
+            margin-top: 0.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Central Control Panel */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            padding: 4rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-glow);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        .action-btn .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            transition: transform 0.5s ease;
+        }
+
+        .action-btn:hover .icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .action-btn h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .action-btn p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Status Area */
+        #status-container {
+            margin-top: 2rem;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
             to {
-                transform: rotate(360deg);
+                opacity: 1;
+                transform: scale(1);
             }
         }
 
-        .logs-section {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(8px);
-            border-radius: 2rem;
+        .status-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-info {
+            font-size: 1.1rem;
+            color: #94a3b8;
+        }
+
+        /* Progress Bar */
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 1.5rem;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-glow), var(--accent-deep));
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: width 0.5s ease;
+        }
+
+        /* Logs Table */
+        .logs-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .logs-title-bar {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 1.5rem 3rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 1rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(244, 63, 94, 0.1);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        .btn-refresh {
+            background: none;
+            border: 1px solid var(--accent-glow);
+            color: var(--accent-glow);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-refresh:hover {
+            background: var(--accent-glow);
+            color: var(--bg-deep);
         }
     </style>
 </head>
 
 <body>
+    <div class="glow-orb"></div>
     <div class="container">
         <header>
-            <h1>Robot Control Center</h1>
-            <p style="color: #94a3b8;">Triggering Jupyter Notebook Automation via API</p>
+            <h1>AI ROBO COCKPIT</h1>
+            <p>Next-Gen Industrial Automation</p>
         </header>
 
-        <main>
-            <section class="control-panel">
-                <div class="actions">
-                    <button class="btn btn-primary" id="dbeaverBtn" onclick="runAutomation('dbeaver')">OPEN
-                        DBEAVER</button>
-                    <button class="btn btn-primary" id="formBtn" onclick="runAutomation('playground')">FILL
-                        FORM</button>
-                </div>
+        <section class="glass-panel">
+            <div class="button-grid">
+                <button class="action-btn" id="dbeaverBtn" onclick="runAutomation('dbeaver')">
+                    <span class="icon">🗄️</span>
+                    <h3>OPEN DBEAVER</h3>
+                    <p>Launch database management tool</p>
+                </button>
+                <button class="action-btn" id="formBtn" onclick="runAutomation('playground')">
+                    <span class="icon">🤖</span>
+                    <h3>FILL FORM</h3>
+                    <p>Execute Selenium web automation</p>
+                </button>
+            </div>
 
-                <div id="loading" class="loading" style="display: none;">
-                    <div id="statusHeader" style="font-weight: bold; margin-bottom: 10px;"></div>
-                    <div id="currentStep" style="font-style: italic; color: #a1a1aa;"></div>
-                    <div class="spinner"></div>
+            <div id="status-container">
+                <div class="status-header" id="statusHeader">PROCES SE SPOUŠTÍ</div>
+                <div class="step-info" id="currentStep">Inicializace systému...</div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="progressBar" style="width: 10%;"></div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section class="logs-section">
-                <div class="logs-header">
-                    <h2 style="margin:0; font-size: 1.25rem;">Historie běhů (Logy)</h2>
-                    <button onclick="fetchLogs()"
-                        style="background:none; border:none; color:var(--accent-color); cursor:pointer; font-weight:600;">Obnovit
-                        ↻</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Datum & Čas</th>
-                            <th>Status</th>
-                            <th>Zpráva / Chyba</th>
-                            <th>Screenshot</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logsTableBody">
-                        <!-- Logy se vloží sem -->
-                    </tbody>
-                </table>
-            </section>
-        </main>
+        <section class="logs-container">
+            <div class="logs-title-bar">
+                <h2 style="margin:0; font-weight: 800; font-size: 1.5rem;">MISSION LOGS</h2>
+                <button class="btn-refresh" onclick="fetchLogs()">REFRESH DATABASE ↻</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>MISSION TIME</th>
+                        <th>STATUS</th>
+                        <th>TELEMETRY DATA</th>
+                        <th>SNAPSHOT</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody"></tbody>
+            </table>
+        </section>
     </div>
 
     <script>
-        const logsTableBody = document.getElementById('logsTableBody');
         const API_KEY = 'moje-tajne-heslo-123';
+        const logsTableBody = document.getElementById('logsTableBody');
 
         async function fetchLogs() {
             try {
-                const response = await fetch('/logs', {
-                    headers: { 'X-API-Key': API_KEY }
-                });
-                if (response.status === 401) return;
+                const response = await fetch('/logs', { headers: { 'X-API-Key': API_KEY } });
                 const logs = await response.json();
                 logsTableBody.innerHTML = logs.map(log => `
                     <tr>
-                        <td style="font-family: monospace;">${log.datum} ${log.cas}</td>
-                        <td><span class="status-badge status-${log.status.toLowerCase()}">${log.status}</span></td>
-                        <td style="color: ${log.status === 'ok' ? '#94a3b8' : '#f87171'}">${log.error_message || 'OK'}</td>
-                        <td>${log.screenshot ? `<a href="${log.screenshot}" target="_blank" style="color:var(--accent-color); text-decoration:none; font-weight:600;">👁️ Foto</a>` : '-'}</td>
+                        <td style="font-weight: 600; color: #94a3b8;">${log.datum} • <span style="color:#fff">${log.cas}</span></td>
+                        <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status}</span></td>
+                        <td style="color: ${log.status === 'ok' ? '#cbd5e1' : '#f43f5e'}">${log.error_message || 'NOMINAL'}</td>
+                        <td>${log.screenshot ? `<a href="${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800; border-bottom: 2px solid var(--accent-glow)">VIEW IMAGE</a>` : '-'}</td>
                     </tr>
                 `).join('');
-            } catch (error) { console.error(error); }
+            } catch (e) { console.error(e); }
         }
 
         async function runAutomation(notebookId) {
-            const loading = document.getElementById('loading');
-            const statusHeader = document.getElementById('statusHeader');
-            const currentStep = document.getElementById('currentStep');
-            const dbeaverBtn = document.getElementById('dbeaverBtn');
-            const formBtn = document.getElementById('formBtn');
-            const spinner = document.querySelector('.spinner');
+            const container = document.getElementById('status-container');
+            const header = document.getElementById('statusHeader');
+            const step = document.getElementById('currentStep');
+            const bar = document.getElementById('progressBar');
+            const btns = document.querySelectorAll('.action-btn');
 
-            loading.style.display = 'block';
-            spinner.style.display = 'block';
-            statusHeader.textContent = 'Proces se spouští...';
-            statusHeader.style.color = '#3b82f6';
-            currentStep.textContent = '';
-            dbeaverBtn.disabled = true;
-            formBtn.disabled = true;
+            container.style.display = 'block';
+            header.textContent = 'MISSION INITIALIZING...';
+            header.style.color = '#38bdf8';
+            step.textContent = 'Establishing secure uplink...';
+            bar.style.width = '15%';
+            btns.forEach(b => b.disabled = true);
 
             let pollInterval = setInterval(async () => {
                 try {
-                    const response = await fetch('/status', { headers: { 'X-API-Key': API_KEY } });
-                    const data = await response.json();
-                    if (data.step) currentStep.textContent = `📍 ${data.step}`;
+                    const res = await fetch('/status', { headers: { 'X-API-Key': API_KEY } });
+                    const data = await res.json();
+                    if (data.step) {
+                        step.textContent = `📍 MISSION STATUS: ${data.step}`;
+                        bar.style.width = '60%';
+                    }
                 } catch (e) { }
             }, 1000);
 
             try {
-                const response = await fetch(`/run/${notebookId}`, {
-                    method: 'POST',
-                    headers: { 'X-API-Key': API_KEY }
-                });
+                const res = await fetch(`/run/${notebookId}`, { method: 'POST', headers: { 'X-API-Key': API_KEY } });
+                const result = await res.json();
                 clearInterval(pollInterval);
-                const result = await response.json();
 
                 if (result.status === 'success') {
-                    statusHeader.textContent = 'Proces spuštěn';
-                    statusHeader.style.color = '#10b981';
-                    currentStep.textContent = '✅ Běh dopadl úspěšně';
+                    header.textContent = 'MISSION ACCOMPLISHED';
+                    header.style.color = '#10b981';
+                    step.textContent = '✅ Robot session ended successfully.';
+                    bar.style.width = '100%';
                 } else {
-                    statusHeader.textContent = 'Proces selhal';
-                    statusHeader.style.color = '#ef4444';
-                    currentStep.textContent = `❌ ${result.message}`;
+                    header.textContent = 'MISSION FAILED';
+                    header.style.color = '#f43f5e';
+                    step.textContent = `❌ ERROR: ${result.message}`;
                 }
-            } catch (error) {
+            } catch (e) {
                 clearInterval(pollInterval);
-                statusHeader.textContent = 'Chyba připojení';
-                statusHeader.style.color = '#ef4444';
-                currentStep.textContent = 'Nelze se spojit se serverem.';
+                header.textContent = 'UPLINK LOST';
+                header.style.color = '#f43f5e';
             } finally {
-                dbeaverBtn.disabled = false;
-                formBtn.disabled = false;
-                spinner.style.display = 'none';
+                btns.forEach(b => b.disabled = false);
                 fetchLogs();
             }
         }
