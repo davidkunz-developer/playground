@@ -5,7 +5,7 @@ a = Analysis(
     ['c:\\Users\\Dkunz\\Documents\\Projekty\\playground\\desktop_app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('desktop_index.html', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

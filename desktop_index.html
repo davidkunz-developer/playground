@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot AI Cockpit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --accent-glow: #38bdf8;
+            --accent-deep: #1d4ed8;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-glow: #e2e8f0;
+            --success: #10b981;
+            --error: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #020617);
+            color: var(--text-glow);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 3rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            z-index: 10;
+        }
+
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            font-size: 1.25rem;
+            color: var(--accent-glow);
+            font-weight: 300;
+            margin-top: 0.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            padding: 4rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-glow);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        .action-btn .icon {
+            font-size: 2.5rem;
+        }
+
+        .action-btn h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .action-btn p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        #status-container {
+            margin-top: 2rem;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-glow), var(--accent-deep));
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: width 0.5s ease;
+        }
+
+        .logs-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 2.5rem;
+            overflow: hidden;
+        }
+
+        .logs-title-bar {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 1.5rem 3rem;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(244, 63, 94, 0.1);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        .btn-refresh {
+            background: none;
+            border: 1px solid var(--accent-glow);
+            color: var(--accent-glow);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glow-orb"></div>
+    <div class="container">
+        <header>
+            <h1>AI ROBO COCKPIT</h1>
+            <p>Next-Gen Industrial Automation</p>
+        </header>
+
+        <section class="glass-panel">
+            <div class="button-grid">
+                <button class="action-btn" onclick="runAutomation('dbeaver')">
+                    <span class="icon">🗄️</span>
+                    <h3>OPEN DBEAVER</h3>
+                    <p>Launch database management tool</p>
+                </button>
+                <button class="action-btn" onclick="runAutomation('playground')">
+                    <span class="icon">🤖</span>
+                    <h3>FILL FORM</h3>
+                    <p>Execute Selenium web automation</p>
+                </button>
+            </div>
+
+            <div id="status-container">
+                <div class="status-header" id="statusHeader" style="font-size: 1.5rem; font-weight:700;">PROCES SE
+                    SPOUŠTÍ</div>
+                <div class="step-info" id="currentStep" style="color: #94a3b8;">Inicializace systému...</div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="progressBar" style="width: 10%;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="logs-container">
+            <div class="logs-title-bar">
+                <h2 style="margin:0; font-weight: 800; font-size: 1.5rem;">MISSION LOGS</h2>
+                <button class="btn-refresh" onclick="fetchLogs()">REFRESH DATABASE ↻</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>MISSION TIME</th>
+                        <th>STATUS</th>
+                        <th>TELEMETRY DATA</th>
+                        <th>SNAPSHOT</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        const API_KEY = 'moje-tajne-heslo-123';
+        const BASE_URL = 'https://playground-1-tgou.onrender.com';
+        const logsTableBody = document.getElementById('logsTableBody');
+
+        async function fetchLogs() {
+            try {
+                const response = await fetch(`${BASE_URL}/logs`, { headers: { 'X-API-Key': API_KEY } });
+                const logs = await response.json();
+                logsTableBody.innerHTML = logs.map(log => `
+                    <tr>
+                        <td style="font-weight: 600; color: #94a3b8;">${log.datum} • <span style="color:#fff">${log.cas}</span></td>
+                        <td><span class="badge ${log.status === 'ok' ? 'status-success' : 'status-error'}">${log.status}</span></td>
+                        <td style="color: ${log.status === 'ok' ? '#cbd5e1' : '#f43f5e'}">${log.error_message || 'NOMINAL'}</td>
+                        <td>${log.screenshot ? `<a href="${BASE_URL}${log.screenshot}" target="_blank" style="color:var(--accent-glow); text-decoration:none; font-weight:800; border-bottom: 2px solid var(--accent-glow)">VIEW IMAGE</a>` : '-'}</td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function runAutomation(notebookId) {
+            const container = document.getElementById('status-container');
+            const header = document.getElementById('statusHeader');
+            const step = document.getElementById('currentStep');
+            const bar = document.getElementById('progressBar');
+            const btns = document.querySelectorAll('.action-btn');
+
+            container.style.display = 'block';
+            header.textContent = 'MISSION INITIALIZING...';
+            header.style.color = '#38bdf8';
+            step.textContent = 'Establishing secure uplink...';
+            bar.style.width = '10%';
+            btns.forEach(b => b.disabled = true);
+
+            let pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${BASE_URL}/status`, { headers: { 'X-API-Key': API_KEY } });
+                    const data = await res.json();
+
+                    if (data.step) {
+                        if (data.step === 'DOKONČENO') {
+                            clearInterval(pollInterval);
+                            header.textContent = 'MISSION ACCOMPLISHED';
+                            header.style.color = '#10b981';
+                            step.textContent = '✅ Všechny operace proběhly v pořádku.';
+                            bar.style.width = '100%';
+                            btns.forEach(b => b.disabled = false);
+                            setTimeout(fetchLogs, 1000);
+                        } else if (data.step.startsWith('CHYBA:')) {
+                            clearInterval(pollInterval);
+                            header.textContent = 'MISSION FAILED';
+                            header.style.color = '#f43f5e';
+                            step.textContent = `❌ ${data.step}`;
+                            btns.forEach(b => b.disabled = false);
+                        } else {
+                            step.textContent = `📍 AKTUÁLNĚ: ${data.step}`;
+                            header.textContent = 'MISSION IN PROGRESS...';
+                            header.style.color = '#38bdf8';
+                            if (data.step.includes('prohlížeč')) bar.style.width = '20%';
+                            if (data.step.includes('Načítám') || data.step.includes('Naviguji')) bar.style.width = '40%';
+                            if (data.step.includes('formulář')) bar.style.width = '70%';
+                        }
+                    }
+                } catch (e) { console.error(e); }
+            }, 800);
+
+            try {
+                const res = await fetch(`${BASE_URL}/run/${notebookId}`, {
+                    method: 'POST',
+                    headers: { 'X-API-Key': API_KEY }
+                });
+                if (!res.ok) {
+                    const result = await res.json();
+                    clearInterval(pollInterval);
+                    header.textContent = 'START FAILED';
+                    header.style.color = '#f43f5e';
+                    step.textContent = `❌ ${result.message}`;
+                    btns.forEach(b => b.disabled = false);
+                }
+            } catch (e) {
+                clearInterval(pollInterval);
+                header.textContent = 'UPLINK LOST';
+                header.style.color = '#f43f5e';
+                btns.forEach(b => b.disabled = false);
+            }
+        }
+        fetchLogs();
+    </script>
+</body>
+
+</html>
