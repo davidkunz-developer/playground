@@ -403,9 +403,8 @@
                             bar.style.width = '100%';
                             btns.forEach(b => b.disabled = false);
                             setTimeout(fetchLogs, 1000);
-                        } else {
                             // Průběžné aktualizace
-                            step.textContent = `📍 AKTUÁLNĚ: ${data.step}`;
+                            step.textContent = data.step;
                             header.textContent = 'MISSION IN PROGRESS...';
                             header.style.color = '#38bdf8';
 

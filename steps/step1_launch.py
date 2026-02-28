@@ -5,22 +5,20 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 
-# Definice kroku a chyby
-step_name = "Nastavuji prohlížeč"
-error_message = "Nepodařilo se nastartovat prohlížeč Chrome."
+step_name = "spuštění prohlížeče"
+error_message = "Nepodařilo se spustit prohlížeč Chrome."
 
 def run():
     os.environ['WDM_LOG_LEVEL'] = '0'
     os.environ['WDM_LOCAL_PATH'] = os.path.join(os.getcwd(), ".wdm")
 
     chrome_options = Options()
+    # Ponecháváme headless pro Render, ale přidáme maximalizaci v dalším kroku
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
     
-    # Úspora RAM
     prefs = {"profile.managed_default_content_settings.images": 2}
     chrome_options.add_experimental_option("prefs", prefs)
 

@@ -42,8 +42,8 @@ app.mount(f"/{SCREENSHOT_DIR}", StaticFiles(directory=SCREENSHOT_DIR), name=SCRE
 
 @app.get("/")
 async def get_index():
-    # Používáme main_v2.html pro vynucení aktualizace frontendu u uživatele
-    return FileResponse("main_v2.html")
+    # Používáme mobile_index.html pro webový přístup
+    return FileResponse("mobile_index.html")
 
 @app.get("/logs")
 async def get_logs(api_key: str = Depends(verify_api_key)):

@@ -342,7 +342,7 @@
                             step.textContent = `❌ ${data.step}`;
                             btns.forEach(b => b.disabled = false);
                         } else {
-                            step.textContent = `📍 AKTUÁLNĚ: ${data.step}`;
+                            step.textContent = data.step;
                             header.textContent = 'MISSION IN PROGRESS...';
                             header.style.color = '#38bdf8';
                             if (data.step.includes('prohlížeč')) bar.style.width = '20%';

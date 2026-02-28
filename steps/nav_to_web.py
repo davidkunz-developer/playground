@@ -2,7 +2,8 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-# Každý skript začíná svou chybovou hláškou
+# Definice kroku a chyby
+step_name = "Naviguji na web a řeším cookies"
 error_message = "Chyba při navigaci na web nebo odklikávání cookies."
 
 def run(driver, wait):

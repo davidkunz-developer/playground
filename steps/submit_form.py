@@ -2,7 +2,8 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-# Každý skript začíná svou chybovou hláškou
+# Definice kroku a chyby
+step_name = "Vyplňuji a odesílám formulář"
 error_message = "Chyba při vyplňování formuláře nebo odesílání."
 
 def run(driver, wait):

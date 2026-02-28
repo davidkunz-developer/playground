@@ -1,12 +1,11 @@
 import os
 import csv
-import sys
 import uuid
 import time
 from datetime import datetime
 
-# Importujeme ty naše nové "skládačky" ze složky steps
-from steps import init_browser, nav_to_web, submit_form
+# Import rozdělených kroků
+from steps import step1_launch, step2_maximize, step3_navigate, step4_cookies, step5_scroll, step6_fill, step7_submit
 
 def log_result(rid, msg, st, ss=""):
     log_file = "automation_log.csv"
@@ -22,33 +21,39 @@ def log_result(rid, msg, st, ss=""):
 def set_step(msg):
     with open('current_step.txt', 'w', encoding='utf-8') as f:
         f.write(msg)
-    print(f"📍 {msg}")
+    print(f"STAV: {msg}")
 
 def run():
     run_id = str(uuid.uuid4())[:8]
-    set_step("Startuji modulární motor (LEGO REŽIM)...")
+    set_step("Zahajuji proces")
     
     driver = None
-    curr_step = None # Aktuálně běžící modul
+    curr_mod = None
+    
+    # Seznam kroků k provedení
+    process_flow = [
+        step1_launch,
+        step2_maximize,
+        step3_navigate,
+        step4_cookies,
+        step5_scroll,
+        step6_fill,
+        step7_submit
+    ]
     
     try:
-        # KROK 1: Start prohlížeče
-        curr_step = init_browser
-        set_step("Nastavuji Full HD prohlížeč...")
-        driver, wait = init_browser.run()
+        # Postupné spouštění skriptů
+        for module in process_flow:
+            curr_mod = module
+            set_step(module.step_name)
+            
+            if module == step1_launch:
+                driver, wait = module.run()
+            else:
+                module.run(driver, wait)
 
-        # KROK 2: Web a Cookies
-        curr_step = nav_to_web
-        set_step("Navazuji spojení s webem a řeším cookies...")
-        nav_to_web.run(driver, wait)
-
-        # KROK 3: Formulář a Odeslání
-        curr_step = submit_form
-        set_step("Vyplňuji a odesílám formulář...")
-        submit_form.run(driver, wait)
-        
-        # KROK 4: Screenshot (udělá orchestrátor pro jistotu)
-        set_step("Vyřizuji důkaz (screenshot)...")
+        # Finální screenshot
+        set_step("Ukládám potvrzení")
         ss_dir = "screenshots"
         if not os.path.exists(ss_dir): os.makedirs(ss_dir)
         ss_name = f"screenshot_{run_id}.png"
@@ -59,11 +64,8 @@ def run():
         set_step("DOKONČENO")
         
     except Exception as e:
-        # Tady se děje ta magie s chybou z aktuálního kroku!
-        # Pokud modul havaruje, vezmeme jeho specifickou error_message
-        specific_error = getattr(curr_step, 'error_message', 'Neočekávaná chyba systému.')
-        full_error = f"{specific_error} (Detaily: {str(e)})"
-        
+        error_prefix = getattr(curr_mod, 'error_message', 'Neidentifikovaná chyba')
+        full_error = f"{error_prefix} ({str(e)})"
         log_result(run_id, full_error, "error")
         set_step(f"CHYBA: {full_error}")
     finally:
