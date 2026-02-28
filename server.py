@@ -59,8 +59,21 @@ async def get_status(api_key: str = Depends(verify_api_key)):
     except:
         return JSONResponse(content={"step": "Pracuji..."})
 
+def execute_notebook_task(notebook_file, output_path):
+    try:
+        pm.execute_notebook(
+            notebook_file,
+            output_path,
+            parameters={} 
+        )
+        with open("current_step.txt", "w", encoding="utf-8") as f: 
+            f.write("DOKONČENO")
+    except Exception as e:
+        with open("current_step.txt", "w", encoding="utf-8") as f: 
+            f.write(f"CHYBA: {str(e)}")
+
 @app.post("/run/{notebook_id}")
-async def run_automation(notebook_id: str, api_key: str = Depends(verify_api_key)):
+async def run_automation(notebook_id: str, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
     if notebook_id not in NOTEBOOKS:
         return JSONResponse(content={"status": "error", "message": f"Notebook '{notebook_id}' nebyl nalezen."}, status_code=404)
     
@@ -69,21 +82,12 @@ async def run_automation(notebook_id: str, api_key: str = Depends(verify_api_key
         f.write("Zahajuji proces...")
 
     notebook_file = NOTEBOOKS[notebook_id]
-    try:
-        output_path = os.path.join(os.environ.get('TEMP', '/tmp'), f"executed_{notebook_id}_{int(time.time())}.ipynb")
-        pm.execute_notebook(
-            notebook_file,
-            output_path,
-            parameters={} 
-        )
-        # Nastavení finálního statusu
-        with open("current_step.txt", "w", encoding="utf-8") as f: 
-            f.write("DOKONČENO")
-        return {"status": "success", "message": f"Notebook '{notebook_id}' byl úspěšně spuštěn."}
-    except Exception as e:
-        with open("current_step.txt", "w", encoding="utf-8") as f: 
-            f.write(f"CHYBA: {str(e)}")
-        return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
+    output_path = os.path.join(os.environ.get('TEMP', '/tmp'), f"executed_{notebook_id}_{int(time.time())}.ipynb")
+    
+    # Spustíme úlohu na pozadí, takže server může dál odpovídat na /status
+    background_tasks.add_task(execute_notebook_task, notebook_file, output_path)
+    
+    return {"status": "success", "message": f"Notebook '{notebook_id}' byl přidán do fronty a spouští se."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
