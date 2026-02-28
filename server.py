@@ -1,7 +1,7 @@
 from fastapi import FastAPI, BackgroundTasks, Header, HTTPException, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-import papermill as pm
+# import papermill as pm (odstraněno pro úsporu RAM)
 import pandas as pd
 import os
 import uvicorn
@@ -20,10 +20,7 @@ def verify_api_key(x_api_key: str = Header(None)):
         raise HTTPException(status_code=401, detail="Neautorizovaný přístup. Špatný API klíč.")
     return x_api_key
 
-NOTEBOOKS = {
-    "dbeaver": "dbeaver_launcher.ipynb",
-    "playground": "automation_playground.ipynb"
-}
+# NOTEBOOKS mapping odstraněn
 SCREENSHOT_DIR = "screenshots"
 
 if not os.path.exists(SCREENSHOT_DIR):
