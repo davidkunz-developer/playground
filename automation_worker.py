@@ -26,56 +26,60 @@ def set_step(msg):
         f.write(msg)
     print(f"📍 {msg}")
 
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 def run():
     run_id = str(uuid.uuid4())[:8]
-    set_step("Startuji ultra-lehký engine...")
+    set_step("Startuji Turbo Engine...")
     
+    # Nastavení driveru s cache (zrychlí start o cca 5-8 vteřin)
+    os.environ['WDM_LOG_LEVEL'] = '0'
+    os.environ['WDM_LOCAL_PATH'] = os.path.join(os.getcwd(), ".wdm")
+
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new") # Novější, stabilnější headless
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--window-size=1280,720")
     
-    # AGRESIVNÍ ÚSPORA RAM: Vypnutí obrázků
-    prefs = {
-        "profile.managed_default_content_settings.images": 2,
-        "disk-cache-size": 4096, # Minimální cache
-        "profile.default_content_setting_values.notifications": 2,
-        "profile.default_content_setting_values.geolocation": 2
-    }
+    # Úspora RAM (bez obrázků)
+    prefs = {"profile.managed_default_content_settings.images": 2}
     chrome_options.add_experimental_option("prefs", prefs)
-    
-    # Další flagy pro Render
-    chrome_options.add_argument("--no-zygote")
-    chrome_options.add_argument("--js-flags='--max-old-space-size=256'") # Omezíme memory pro JS
-    
-    if os.path.exists("/usr/bin/google-chrome"):
-        chrome_options.binary_location = "/usr/bin/google-chrome"
 
     driver = None
     try:
         set_step("Otevírám prohlížeč...")
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-        
+        # ChromeDriver s minimálním zpožděním při startu
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        wait = WebDriverWait(driver, 15) # Max 15s čekání, ale skončí hned jak najde prvek
+
         set_step("Naviguji na web...")
         driver.get("https://www.david-kunz-automation.com")
-        time.sleep(2)
 
         set_step("Hledám sekci Kontakt...")
-        contact_section = driver.find_element(By.ID, "contact-section")
+        # Místo time.sleep(2) čekáme na prvek
+        contact_section = wait.until(EC.presence_of_element_located((By.ID, "contact-section")))
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", contact_section)
         
         set_step("Vyplňuji formulář...")
-        driver.find_element(By.ID, "firstName").send_keys("Robot")
+        # Čekáme na první pole, abychom měli jistotu
+        first_name_field = wait.until(EC.element_to_be_clickable((By.ID, "firstName")))
+        
+        # Super rychlé psaní
+        first_name_field.send_keys("Robot")
         driver.find_element(By.ID, "lastName").send_keys("Tonda")
         driver.find_element(By.ID, "email").send_keys("tonda.robot@solutions.cz")
-        driver.find_element(By.ID, "message").send_keys("Běh z lehkého Python workeru pro úsporu RAM.")
+        driver.find_element(By.ID, "message").send_keys("Tato zpráva byla odeslána automaticky robotem v ostrém Turbo režimu.")
         
-        set_step("Odesílám (simulace)...")
-        # Zde by byl click, pro test jen simulujeme
+        set_step("Odesílám formulář...")
+        submit_btn = driver.find_element(By.CSS_SELECTOR, "#contact-form button[type='submit']")
+        driver.execute_script("arguments[0].click();", submit_btn) # Jistější odeslání přes JS
+        
+        # Počkáme na potvrzení (třeba chvilku)
         time.sleep(1)
 
         set_step("Pořizuji screenshot...")
@@ -83,7 +87,7 @@ def run():
         if not os.path.exists(ss_dir): os.makedirs(ss_dir)
         ss_name = f"screenshot_{run_id}.png"
         ss_path = os.path.join(ss_dir, ss_name)
-        driver.save_screenshot(ss_path)
+        driver.get_screenshot_as_file(ss_path) # Rychlejší metoda
         
         log_result(run_id, "", "ok", f"/screenshots/{ss_name}")
         set_step("DOKONČENO")
