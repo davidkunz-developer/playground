@@ -7,6 +7,14 @@ from datetime import datetime
 # Import rozdělených kroků
 from steps import step1_launch, step2_maximize, step3_navigate, step4_cookies, step5_scroll, step6_fill, step7_submit
 
+def set_step(text):
+    """Pomocná funkce pro zápis aktuálního stavu do souboru."""
+    try:
+        with open("current_step.txt", "w", encoding="utf-8") as f:
+            f.write(text)
+    except:
+        pass
+
 def log_result(rid, msg, st, ss=""):
     log_file = "automation_log.csv"
     now = datetime.now()
