@@ -59,31 +59,37 @@ async def get_status(api_key: str = Depends(verify_api_key)):
     except:
         return JSONResponse(content={"step": "Pracuji..."})
 
-def execute_worker_task():
+def execute_worker_task(script_name: str):
     # Agresivně vyčistíme RAM a spustíme lehký skript
     if os.name != "nt": 
-        # Vyčistíme staré procesy
         os.system("pkill -f chrome || true")
         os.system("pkill -f chromedriver || true")
     
-    # Spustíme lehký Python worker místo těžkého notebooku
-    # To ušetří cca 150-200 MB RAM (nebudeme muset mít Jupyter Kernel)
     try:
-        os.system(f"python automation_worker.py")
+        # Spustíme konkrétní Python skript podle požadavku
+        os.system(f"python {script_name}")
     except Exception as e:
         with open("current_step.txt", "w", encoding="utf-8") as f: 
             f.write(f"CHYBA: {str(e)}")
 
-@app.post("/run/{notebook_id}")
-async def run_automation(notebook_id: str, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
+@app.post("/run/{action_id}")
+async def run_automation(action_id: str, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
     # Inicializace statusu pro uživatele
     with open("current_step.txt", "w", encoding="utf-8") as f: 
         f.write("Zahajuji odlehčenou misi...")
     
-    # Spustíme úlohu na pozadí (lehký worker)
-    background_tasks.add_task(execute_worker_task)
+    # Mapování akcí na čisté Python skripty
+    script_map = {
+        "automation_playground": "automation_worker.py",
+        "dbeaver_launcher": "dbeaver_worker.py"
+    }
+
+    target_script = script_map.get(action_id, "automation_worker.py")
     
-    return {"status": "success", "message": "Robot byl vypuštěn (odlehčená verze)."}
+    # Spustíme úlohu na pozadí (lehký worker)
+    background_tasks.add_task(execute_worker_task, target_script)
+    
+    return {"status": "success", "message": f"Mise '{action_id}' zahájena přes Python engine."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
