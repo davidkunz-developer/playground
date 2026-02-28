@@ -36,5 +36,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Kopírování zbytku aplikace
 COPY . .
 
-# Spuštění serveru
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+# Spuštění serveru - Render vyžaduje naslouchání na portu z proměnné $PORT
+CMD uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000}
