@@ -347,7 +347,9 @@
                             header.style.color = '#38bdf8';
                             if (data.step.includes('prohlížeč')) bar.style.width = '20%';
                             if (data.step.includes('Načítám') || data.step.includes('Naviguji')) bar.style.width = '40%';
+                            if (data.step.includes('cookies')) bar.style.width = '50%';
                             if (data.step.includes('formulář')) bar.style.width = '70%';
+                            if (data.step.includes('Odesílám')) bar.style.width = '90%';
                         }
                     }
                 } catch (e) { console.error(e); }

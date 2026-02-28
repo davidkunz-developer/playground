@@ -60,6 +60,16 @@ def run():
         set_step("Naviguji na web...")
         driver.get("https://www.david-kunz-automation.com")
 
+        # --- COOKIES ---
+        try:
+            set_step("Potvrzuji cookies...")
+            # Hledáme tlačítko 'Rozumím' nebo 'Accept'
+            cookie_btn = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Rozumím') or contains(text(), 'Accept')]")))
+            cookie_btn.click()
+            time.sleep(0.5) # Krátká pauza na zmizení lišty
+        except:
+            print("Cookie lišta nenalezena.")
+
         set_step("Hledám sekci Kontakt...")
         # Místo time.sleep(2) čekáme na prvek
         contact_section = wait.until(EC.presence_of_element_located((By.ID, "contact-section")))
