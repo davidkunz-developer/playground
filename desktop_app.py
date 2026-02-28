@@ -4,7 +4,7 @@ import os
 import time
 
 # Zde je URL tvého serveru na Renderu
-SERVER_URL = "https://playground-kdui.onrender.com/"
+SERVER_URL = "https://playground-1-tgou.onrender.com"
 
 def start_app():
     # Vytvoří okno, které se chová jako desktopová aplikace

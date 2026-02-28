@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: playground
+    name: playground-1
     runtime: docker
     plan: free
     envVars:
