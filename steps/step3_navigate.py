@@ -1,5 +1,6 @@
 step_name = "vepsání url"
-error_message = "Nepodařilo se načíst požadovanou URL adresu."
+error_message = "Cíl nenalezen nebo timeout při načítání."
 
-def run(driver, wait):
-    driver.get("https://www.david-kunz-automation.com")
+def run(browser, page):
+    # Otevření stránky s timeoutem 10s (již nastaven globálně v S1)
+    page.goto("https://www.david-kunz-automation.com", wait_until="domcontentloaded")

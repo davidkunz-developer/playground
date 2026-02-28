@@ -1,7 +1,6 @@
 step_name = "maximalizování"
-error_message = "Nepodařilo se maximalizovat okno prohlížeče."
+error_message = "Chyba při nastavování rozlišení."
 
-def run(driver, wait):
-    driver.maximize_window()
-    # V headless režimu občas maximize nefunguje 100%, tak pojistíme rozlišením
-    driver.set_window_size(1920, 1080)
+def run(browser, page):
+    # Desktop Full HD (již podchyceno v contextu, ale pro formu)
+    page.set_viewport_size({"width": 1920, "height": 1080})

@@ -1,32 +1,26 @@
-import os
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
+from playwright.sync_api import sync_playwright
 
 step_name = "spuštění prohlížeče"
-error_message = "Nepodařilo se spustit prohlížeč Chrome."
+error_message = "Nepodařilo se spustit motor Playwright."
 
 def run():
-    os.environ['WDM_LOG_LEVEL'] = '0'
-    os.environ['WDM_LOCAL_PATH'] = os.path.join(os.getcwd(), ".wdm")
-
-    chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--disable-infobars")
-    chrome_options.add_argument("--disable-extensions")
+    # Inicializace synchronního Playwrightu
+    pw = sync_playwright().start()
     
-    # Zakázání obrázků pro rychlost
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    chrome_options.add_experimental_option("prefs", prefs)
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.set_page_load_timeout(10)
-    wait = WebDriverWait(driver, 10)
+    # Spustíme Chrome/Chromium v headless režimu pro Render
+    # headless=True je výchozí, pro jistotu explicitně
+    browser = pw.chromium.launch(headless=True)
     
-    return driver, wait
+    # Vytvoření kontextu s Full HD rozlišením
+    context = browser.new_context(
+        viewport={'width': 1920, 'height': 1080},
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+    )
+    
+    # Nová stránka
+    page = context.new_page()
+    
+    # Playwright má vestavěný timeout, nastavíme ho globálně na 10s
+    page.set_default_timeout(10000)
+    
+    return browser, page, pw

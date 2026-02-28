@@ -26,22 +26,26 @@ def log_result(rid, msg, st, ss=""):
         if not file_exists: writer.writerow(header)
         writer.writerow(new_entry)
 
-def take_screenshot(driver, run_id):
+def take_screenshot(page, run_id):
     try:
         ss_dir = "screenshots"
         if not os.path.exists(ss_dir): os.makedirs(ss_dir)
         ss_name = f"screenshot_{run_id}.png"
         ss_path = os.path.join(ss_dir, ss_name)
-        driver.get_screenshot_as_file(ss_path)
+        # Playwright screenshot
+        page.screenshot(path=ss_path, full_page=False)
         return f"/screenshots/{ss_name}"
-    except:
+    except Exception as e:
+        print(f"Screenshot s chybou: {e}")
         return ""
 
 def run():
     run_id = str(uuid.uuid4())[:8]
     set_step("Zahajuji proces")
     
-    driver = None
+    browser = None
+    page = None
+    pw = None
     curr_mod = None
     
     # Seznam kroků k provedení
@@ -63,34 +67,38 @@ def run():
             set_step(f"{module.step_name}|{i+1}|{total_steps}")
             
             if module == step1_launch:
-                driver, wait = module.run()
+                browser, page, pw = module.run()
             else:
-                module.run(driver, wait)
+                module.run(browser, page)
             
-            # Krátká pauza pro UI refresh
-            time.sleep(0.5)
+            # Krátká pauza pro UI refresh - s Playwrightem stačí míň
+            time.sleep(0.3)
 
         # Finální screenshot
         set_step("Ukládám potvrzení")
-        ss_url = take_screenshot(driver, run_id)
+        ss_url = take_screenshot(page, run_id)
         
-        log_result(run_id, "", "ok", ss_url)
+        log_result(run_id, "Úspěšná mise!", "ok", ss_url)
         set_step("DOKONČENO")
         
     except Exception as e:
         # Pobereme jen čistou hlášku, žádné monster stacktracy
-        clean_error = getattr(curr_mod, 'error_message', 'Neidentifikovaná chyba systému')
+        clean_error = getattr(curr_mod, 'error_message', f"Chyba systému: {str(e)}")
         
         # Zkusíme udělat screenshot i při chybě
         ss_url = ""
-        if driver:
-            ss_url = take_screenshot(driver, run_id)
+        if page:
+            ss_url = take_screenshot(page, run_id)
         
         log_result(run_id, clean_error, "error", ss_url)
         set_step(f"CHYBA: {clean_error}")
+        print(f"Běloruská chyba: {e}") # Pro logy na Renderu
+        
     finally:
-        if driver:
-            driver.quit()
+        if browser:
+            browser.close()
+        if pw:
+            pw.stop()
 
 if __name__ == "__main__":
     run()

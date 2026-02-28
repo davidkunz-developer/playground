@@ -1,18 +1,16 @@
-import time
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+step_name = "cookies (pokud jsou)"
+error_message = "Chyba při zpracování cookie banneru."
 
-step_name = "cookies"
-error_message = "Chyba při zpracování cookie lišty."
-
-def run(driver, wait):
-    try:
-        # Čekání na cookies (10 sekund dle požadavku)
-        cookie_wait = WebDriverWait(driver, 10)
-        cookie_btn = cookie_wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'SOUHLASÍM') or contains(., 'Rozumím') or contains(., 'Accept')]")))
-        driver.execute_script("arguments[0].click();", cookie_btn)
-        time.sleep(1)
-        print("Cookies potvrzeny.")
-    except:
-        print("Cookies nenalezeny - přeskakuji.")
+def run(browser, page):
+    # Selector pro běžné cookie buttony
+    # Playwrightův selector podporuje 'has-text' což je super rychlé
+    banner = page.locator("//button[contains(text(), 'SOUHLASÍM') or contains(text(), 'Rozumím') or contains(text(), 'Accept')]")
+    
+    # Krátký timeout pro kontrolu přítomnosti - 3 sekundy stačí
+    if banner.is_visible(timeout=3000):
+        banner.click()
+        # Malá pauza pro zmizení banneru
+        page.wait_for_timeout(500)
+    else:
+        # Pokud není, nic se neděje
+        pass
