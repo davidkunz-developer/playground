@@ -28,15 +28,29 @@ def set_step(msg):
 
 def run():
     run_id = str(uuid.uuid4())[:8]
-    set_step("Startuji lehký engine...")
+    set_step("Startuji ultra-lehký engine...")
     
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new") # Novější, stabilnější headless
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--single-process") # Nutné pro 512MB RAM
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--window-size=1280,720")
+    
+    # AGRESIVNÍ ÚSPORA RAM: Vypnutí obrázků
+    prefs = {
+        "profile.managed_default_content_settings.images": 2,
+        "disk-cache-size": 4096, # Minimální cache
+        "profile.default_content_setting_values.notifications": 2,
+        "profile.default_content_setting_values.geolocation": 2
+    }
+    chrome_options.add_experimental_option("prefs", prefs)
+    
+    # Další flagy pro Render
+    chrome_options.add_argument("--no-zygote")
+    chrome_options.add_argument("--js-flags='--max-old-space-size=256'") # Omezíme memory pro JS
     
     if os.path.exists("/usr/bin/google-chrome"):
         chrome_options.binary_location = "/usr/bin/google-chrome"
