@@ -307,13 +307,14 @@
                             counter.textContent = 'STEP 7 / 7 (100%)';
                             btns.forEach(b => b.disabled = false);
                             setTimeout(fetchLogs, 1000);
-                        } else if (data.step.startsWith('CHYBA:')) {
+                        } else if (data.step === 'FAILED') {
                             clearInterval(pollInterval);
                             header.textContent = 'MISSION FAILED';
                             header.style.color = '#f43f5e';
-                            step.textContent = data.step;
+                            step.textContent = 'Mise selhala. Detail najdeš v logách.';
                             counter.textContent = 'FAILED';
                             btns.forEach(b => b.disabled = false);
+                            setTimeout(fetchLogs, 800);
                         } else if (data.step.includes('|')) {
                             const parts = data.step.split('|');
                             const name = parts[0];

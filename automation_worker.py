@@ -91,7 +91,7 @@ def run():
             ss_url = take_screenshot(page, run_id)
         
         log_result(run_id, clean_error, "error", ss_url)
-        set_step(f"CHYBA: {clean_error}")
+        set_step("FAILED")
         print(f"Běloruská chyba: {e}") # Pro logy na Renderu
         
     finally:
