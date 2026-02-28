@@ -59,35 +59,31 @@ async def get_status(api_key: str = Depends(verify_api_key)):
     except:
         return JSONResponse(content={"step": "Pracuji..."})
 
-def execute_notebook_task(notebook_file, output_path):
+def execute_worker_task():
+    # Agresivně vyčistíme RAM a spustíme lehký skript
+    if os.name != "nt": 
+        # Vyčistíme staré procesy
+        os.system("pkill -f chrome || true")
+        os.system("pkill -f chromedriver || true")
+    
+    # Spustíme lehký Python worker místo těžkého notebooku
+    # To ušetří cca 150-200 MB RAM (nebudeme muset mít Jupyter Kernel)
     try:
-        pm.execute_notebook(
-            notebook_file,
-            output_path,
-            parameters={} 
-        )
-        with open("current_step.txt", "w", encoding="utf-8") as f: 
-            f.write("DOKONČENO")
+        os.system(f"python automation_worker.py")
     except Exception as e:
         with open("current_step.txt", "w", encoding="utf-8") as f: 
             f.write(f"CHYBA: {str(e)}")
 
 @app.post("/run/{notebook_id}")
 async def run_automation(notebook_id: str, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
-    if notebook_id not in NOTEBOOKS:
-        return JSONResponse(content={"status": "error", "message": f"Notebook '{notebook_id}' nebyl nalezen."}, status_code=404)
-    
-    # Inicializace statusu
+    # Inicializace statusu pro uživatele
     with open("current_step.txt", "w", encoding="utf-8") as f: 
-        f.write("Zahajuji proces...")
-
-    notebook_file = NOTEBOOKS[notebook_id]
-    output_path = os.path.join(os.environ.get('TEMP', '/tmp'), f"executed_{notebook_id}_{int(time.time())}.ipynb")
+        f.write("Zahajuji odlehčenou misi...")
     
-    # Spustíme úlohu na pozadí, takže server může dál odpovídat na /status
-    background_tasks.add_task(execute_notebook_task, notebook_file, output_path)
+    # Spustíme úlohu na pozadí (lehký worker)
+    background_tasks.add_task(execute_worker_task)
     
-    return {"status": "success", "message": f"Notebook '{notebook_id}' byl přidán do fronty a spouští se."}
+    return {"status": "success", "message": "Robot byl vypuštěn (odlehčená verze)."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
