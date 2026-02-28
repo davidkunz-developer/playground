@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: playground
+    runtime: docker
+    plan: free
+    envVars:
+      - key: ROBOT_API_KEY
+        sync: false
+        # Zde můžeš nechat výchozí nebo si pak na Renderu v UI změnit
+        value: moje-tajne-heslo-123
